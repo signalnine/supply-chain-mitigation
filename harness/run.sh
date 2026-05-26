@@ -59,18 +59,13 @@ run_scenario() {
         2> "$RESULTS_DIR/${name}.response.stderr" || true
       ;;
     gemini)
-      local rules full_prompt
-      rules="$(cat "$RULES_FILE")"
-      full_prompt="$rules
-
-== USER PROMPT FOLLOWS ==
-$prompt"
+      # Rules live in ~/.gemini/GEMINI.md and get auto-loaded; no prompt prepend.
       (cd "$workdir" && gemini \
         --model "$TEST_MODEL" \
         --yolo \
         --skip-trust \
         --output-format json \
-        --prompt "$full_prompt") \
+        --prompt "$prompt") \
         > "$RESULTS_DIR/${name}.response.json" \
         2> "$RESULTS_DIR/${name}.response.stderr" || true
       ;;
