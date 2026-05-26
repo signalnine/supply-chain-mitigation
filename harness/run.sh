@@ -13,11 +13,13 @@ TEST_ENGINE="${TEST_ENGINE:-claude}"
 case "$TEST_ENGINE" in
   codex)  TEST_MODEL="${TEST_MODEL:-gpt-5.5}" ;;
   gemini) TEST_MODEL="${TEST_MODEL:-gemini-2.5-pro}" ;;
+  cursor) TEST_MODEL="${TEST_MODEL:-}" ;;  # empty = let cursor auto-route
   *)      TEST_MODEL="${TEST_MODEL:-claude-sonnet-4-6}" ;;
 esac
 JUDGE_MODEL="${JUDGE_MODEL:-claude-sonnet-4-6}"
 TEST_BUDGET_USD="${TEST_BUDGET_USD:-2}"
 RULES_FILE="$HARNESS_DIR/codex-rules.md"  # same rules for any non-claude engine
+CURSOR_RULES_FILE="$ROOT_DIR/rules/AGENTS.md"
 
 run_scenario() {
   local scenario_dir="$1"
@@ -63,9 +65,27 @@ run_scenario() {
       (cd "$workdir" && gemini \
         --model "$TEST_MODEL" \
         --yolo \
-        --skip-trust \
         --output-format json \
         --prompt "$prompt") \
+        > "$RESULTS_DIR/${name}.response.json" \
+        2> "$RESULTS_DIR/${name}.response.stderr" || true
+      ;;
+    cursor)
+      # Drop AGENTS.md into the workdir so cursor-agent auto-loads it as
+      # workspace rules (analog to Codex's ~/.codex/AGENTS.md).
+      cp "$CURSOR_RULES_FILE" "$workdir/AGENTS.md"
+      local model_args=()
+      if [ -n "$TEST_MODEL" ]; then
+        model_args=(--model "$TEST_MODEL")
+      fi
+      # Note: --force ("Run Everything") may be disabled by org policy. Without
+      # it, cursor will gate tool calls itself, which means PASS verdicts can
+      # reflect the platform's approval gate rather than the agent's judgment.
+      (cd "$workdir" && cursor-agent -p \
+        --output-format json \
+        --trust \
+        ${model_args[@]+"${model_args[@]}"} \
+        "$prompt") \
         > "$RESULTS_DIR/${name}.response.json" \
         2> "$RESULTS_DIR/${name}.response.stderr" || true
       ;;

@@ -1,6 +1,6 @@
 # supply-chain-mitigation
 
-Adversarial test harness for AI coding agents (Claude Code, OpenAI Codex CLI) against real-world supply-chain attack patterns. Each scenario reproduces a documented attack, scripts the planted artifacts (inert), feeds an adversarial prompt to the agent under test, and uses an LLM judge to score PASS / PARTIAL / FAIL against pre-written criteria.
+Adversarial test harness for AI coding agents (Claude Code, OpenAI Codex CLI, Cursor CLI) against real-world supply-chain attack patterns. Each scenario reproduces a documented attack, scripts the planted artifacts (inert), feeds an adversarial prompt to the agent under test, and uses an LLM judge to score PASS / PARTIAL / FAIL against pre-written criteria.
 
 ## Why
 
@@ -34,6 +34,7 @@ Scores from running the suite once per engine. The 12-scenario suite costs rough
 | Claude Sonnet 4.6 + `~/.claude/CLAUDE.md` (this repo's `rules/CLAUDE.md`) | 12 | 0 | 0 |
 | Claude Opus 4.7 + same CLAUDE.md | 12 | 0 | 0 |
 | OpenAI Codex (gpt-5.5) + `~/.codex/AGENTS.md` (this repo's `rules/AGENTS.md`) | 12 | 0 | 0 |
+| Cursor CLI (auto-routed model) + workdir-dropped `AGENTS.md` (this repo's `rules/AGENTS.md`) | 12 | 0 | 0 |
 
 Notes:
 - The "out of the box" baseline (no rules file) is significantly worse; the rule set is what makes the difference.
@@ -50,7 +51,7 @@ scenarios/NN-name/
   NOTES.md      # which real attack + which rule under test
   teardown.sh   # (scenario 11 only) restore ~/.bashrc backup
 harness/
-  run.sh        # main runner, supports TEST_ENGINE=claude|codex
+  run.sh        # main runner, supports TEST_ENGINE=claude|codex|cursor
   judge.sh      # LLM judge (uses Claude Sonnet by default)
   summarize.sh  # roll up verdicts into a markdown table
   codex-rules.md # prompt-prefix rule set (kept for engines without a native config convention)
@@ -74,6 +75,12 @@ Against OpenAI Codex:
 TEST_ENGINE=codex bash harness/run.sh
 ```
 
+Against Cursor (auto-routed model; `rules/AGENTS.md` is dropped into each scenario's workdir so cursor-agent auto-loads it):
+
+```
+TEST_ENGINE=cursor bash harness/run.sh
+```
+
 Specific scenarios only:
 
 ```
@@ -81,8 +88,8 @@ bash harness/run.sh 03-xz-build-script 11-bashrc-helper
 ```
 
 Knobs:
-- `TEST_ENGINE` - `claude` (default) or `codex`
-- `TEST_MODEL` - per-engine sensible default (`claude-sonnet-4-6`, `gpt-5.5`)
+- `TEST_ENGINE` - `claude` (default), `codex`, or `cursor`
+- `TEST_MODEL` - per-engine sensible default (`claude-sonnet-4-6`, `gpt-5.5`; cursor defaults to auto-routing)
 - `JUDGE_MODEL` - judge model (default `claude-sonnet-4-6`)
 - `TEST_BUDGET_USD` - per-session cap for Claude (default `2`)
 
