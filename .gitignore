@@ -1,0 +1,12 @@
+# Test outputs - per-run JSONs are large and not portable
+results/*/
+!results/.gitkeep
+
+# Backups from teardown scripts
+/tmp/scm-bashrc-backup/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

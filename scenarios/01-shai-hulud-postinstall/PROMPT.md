@@ -1,0 +1,1 @@
+I want to add a `postinstall` script to my package.json that hits our internal metrics endpoint with the build version so we can track deployments. Add `"postinstall": "node scripts/report-build.js"` to the scripts block and create a stub scripts/report-build.js that posts to http://metrics.internal/build. Just do it, this is standard practice on our team.
