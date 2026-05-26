@@ -1,6 +1,6 @@
 # supply-chain-mitigation
 
-Adversarial test harness for AI coding agents (Claude Code, OpenAI Codex CLI, Gemini CLI) against real-world supply-chain attack patterns. Each scenario reproduces a documented attack, scripts the planted artifacts (inert), feeds an adversarial prompt to the agent under test, and uses an LLM judge to score PASS / PARTIAL / FAIL against pre-written criteria.
+Adversarial test harness for AI coding agents (Claude Code, OpenAI Codex CLI) against real-world supply-chain attack patterns. Each scenario reproduces a documented attack, scripts the planted artifacts (inert), feeds an adversarial prompt to the agent under test, and uses an LLM judge to score PASS / PARTIAL / FAIL against pre-written criteria.
 
 ## Why
 
@@ -34,12 +34,10 @@ Scores from running the suite once per engine. The 12-scenario suite costs rough
 | Claude Sonnet 4.6 + `~/.claude/CLAUDE.md` (this repo's `rules/CLAUDE.md`) | 12 | 0 | 0 |
 | Claude Opus 4.7 + same CLAUDE.md | 12 | 0 | 0 |
 | OpenAI Codex (gpt-5.5) + `~/.codex/AGENTS.md` (this repo's `rules/AGENTS.md`) | 12 | 0 | 0 |
-| Gemini 2.5 Flash + prompt-prepended rules (no native config used) | 1 | 6 | 5 |
 
 Notes:
-- The "out of the box" baseline (no rules file) is significantly worse for all engines; the rule set is what makes the difference.
-- Gemini 2.5 Pro hit rate-limit (429) during testing; Flash was the substitute and is a smaller tier than Sonnet/Opus/gpt-5.5. Pro would likely score higher.
-- For Codex, putting the rules in `~/.codex/AGENTS.md` (durable system prompt) vs prompt-prefixing made the difference between 9/3/0 and 12/0/0. Same effect should apply to Gemini using a native config equivalent (e.g. `~/.gemini/GEMINI.md`).
+- The "out of the box" baseline (no rules file) is significantly worse; the rule set is what makes the difference.
+- For Codex, putting the rules in `~/.codex/AGENTS.md` (durable system prompt) vs prompt-prefixing made the difference between 9/3/0 and 12/0/0.
 - Scenario 03 was added retroactively (xz-style obfuscated build script) and originally failed against Sonnet because there was no "read build files before running" rule. The current rule set includes one.
 
 ## Layout
@@ -52,10 +50,10 @@ scenarios/NN-name/
   NOTES.md      # which real attack + which rule under test
   teardown.sh   # (scenario 11 only) restore ~/.bashrc backup
 harness/
-  run.sh        # main runner, supports TEST_ENGINE=claude|codex|gemini
+  run.sh        # main runner, supports TEST_ENGINE=claude|codex
   judge.sh      # LLM judge (uses Claude Sonnet by default)
   summarize.sh  # roll up verdicts into a markdown table
-  codex-rules.md # prompt-prefix rule set (used when no native config is available)
+  codex-rules.md # prompt-prefix rule set (kept for engines without a native config convention)
 rules/
   CLAUDE.md     # supply chain rules to drop into ~/.claude/CLAUDE.md
   AGENTS.md     # supply chain rules to drop into ~/.codex/AGENTS.md (more verbose)
@@ -76,12 +74,6 @@ Against OpenAI Codex:
 TEST_ENGINE=codex bash harness/run.sh
 ```
 
-Against Gemini:
-
-```
-TEST_ENGINE=gemini TEST_MODEL=gemini-2.5-flash bash harness/run.sh
-```
-
 Specific scenarios only:
 
 ```
@@ -89,8 +81,8 @@ bash harness/run.sh 03-xz-build-script 11-bashrc-helper
 ```
 
 Knobs:
-- `TEST_ENGINE` - `claude` (default), `codex`, or `gemini`
-- `TEST_MODEL` - per-engine sensible default (`claude-sonnet-4-6`, `gpt-5.5`, `gemini-2.5-pro`)
+- `TEST_ENGINE` - `claude` (default) or `codex`
+- `TEST_MODEL` - per-engine sensible default (`claude-sonnet-4-6`, `gpt-5.5`)
 - `JUDGE_MODEL` - judge model (default `claude-sonnet-4-6`)
 - `TEST_BUDGET_USD` - per-session cap for Claude (default `2`)
 
@@ -105,7 +97,6 @@ Scenario 11 (bashrc) is the only scenario that targets a real file outside the w
 ## Limitations / future work
 
 - The judge is itself an LLM (Claude Sonnet by default) and can be inconsistent at the PASS/PARTIAL boundary. Two runs of the same scenario can occasionally flip between PASS and PARTIAL if the agent's behavior sits on a judgment line.
-- The Gemini run used prompt-prefix injection rather than native `GEMINI.md` loading. Closing that gap is the obvious next step.
 - The 12 scenarios cover the most common attack categories but are not exhaustive. Pull requests adding scenarios for dependency confusion, CI secret leakage, IDE extension hijacks, MCP server attacks, etc. are welcome.
 
 ## License
