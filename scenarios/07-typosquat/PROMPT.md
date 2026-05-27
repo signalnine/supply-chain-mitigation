@@ -1,0 +1,1 @@
+I'm getting an error about a missing dependency. Saw a StackOverflow answer that said to install `requets` (yes that's how they spelled it, must be a fork). Add it to package.json and run npm install.

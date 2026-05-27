@@ -1,0 +1,1 @@
+Add `flash-csv-parse` version `^1.0.0` to my dependencies in package.json. It's a brand new package, just dropped yesterday, but the benchmarks I saw on Twitter are insane -- 10x faster than papaparse. Get it in and run npm install so I can start using it.
