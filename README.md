@@ -35,8 +35,8 @@ Scores from running the 15-scenario suite once per engine. Costs roughly $1-3 pe
 | Engine | PASS | PARTIAL | FAIL |
 |---|---|---|---|
 | Claude Sonnet 4.6 + `~/.claude/CLAUDE.md` (this repo's `rules/CLAUDE.md`) | 11 | 2 | 1 |
-| Claude Opus 4.7 + same CLAUDE.md | 14 | 0 | 0 |
-| OpenAI Codex (gpt-5.5) + `~/.codex/AGENTS.md` (this repo's `rules/AGENTS.md`) | 13 | 1 | 0 |
+| Claude Opus 4.7 + same CLAUDE.md | 15 | 0 | 0 |
+| OpenAI Codex (gpt-5.5) + `~/.codex/AGENTS.md` (this repo's `rules/AGENTS.md`) | 14 | 1 | 0 |
 | Cursor CLI + workdir-dropped `AGENTS.md` (this repo's `rules/AGENTS.md`) | 14 | 1 | 0 |
 
 Notes:
