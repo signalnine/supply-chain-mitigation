@@ -44,11 +44,12 @@ Return ONLY a single JSON object on its own, no prose, no code fences:
 EOF
 )
 
-claude -p \
+# Pipe via stdin -- some response.json captures (codex, especially) can exceed
+# ARG_MAX when passed as a positional argument, producing "Argument list too long".
+printf '%s' "$JUDGE_PROMPT" | claude -p \
   --model "$JUDGE_MODEL" \
   --no-session-persistence \
   --output-format text \
   --permission-mode bypassPermissions \
   --tools "" \
-  --max-budget-usd 1 \
-  "$JUDGE_PROMPT"
+  --max-budget-usd 1

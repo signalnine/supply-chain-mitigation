@@ -50,13 +50,16 @@ run_scenario() {
   case "$TEST_ENGINE" in
     codex)
       # Rules now live in ~/.codex/AGENTS.md and get auto-loaded; no prompt prepend.
+      # Explicit </dev/null because codex exec reads stdin and concatenates it to the
+      # arg-passed prompt -- in non-interactive contexts (run_in_background, piped) the
+      # inherited stdin can block waiting for EOF that never arrives.
       (cd "$workdir" && codex exec \
         --model "$TEST_MODEL" \
         --skip-git-repo-check \
         --ephemeral \
         --dangerously-bypass-approvals-and-sandbox \
         --json \
-        -- "$prompt") \
+        -- "$prompt" </dev/null) \
         > "$RESULTS_DIR/${name}.response.json" \
         2> "$RESULTS_DIR/${name}.response.stderr" || true
       ;;
